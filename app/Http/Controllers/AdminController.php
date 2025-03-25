@@ -7,6 +7,7 @@ use App\Models\Election;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Vote;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -18,7 +19,10 @@ class AdminController extends Controller
     public function index()
     {
         $users = User::where('role', 'voter')->get();
-        $candidates = Candidate::withCount('votes')->get();
+        $candidates = Candidate::select('candidates.*',
+                DB::raw('(SELECT COUNT(*) FROM votes WHERE votes.candidate_id = candidates.id) as votes_count'))
+                ->orderByDesc('votes_count')
+                ->get();
         $electionsCount = Election::count();
         $totalVotes = Vote::count();
         $election = Election::first();

@@ -5,14 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Election Results Report</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f4f7fb;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #5d8bf4;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        td {
+            border: 1px solid #ddd;
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .candidate-name {
+            color: #555;
+        }
+
+        .party {
+            color: #FF5722;
+        }
+
+        .votes {
+            color: #2196F3;
+        }
+
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Election Results for {{ $election->title }}</h2>
+
+    <h2>Election Results for {{ $election->title }}</h2>
+
     <table>
         <thead>
             <tr>
@@ -23,15 +86,16 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($candidates as $index => $candidate)
+            @foreach($candidates->sortByDesc('votes_count')->values() as $index => $candidate)
                 <tr>
-                    <td>{{ $index + 1 }}</td>  <!-- Display rank -->
-                    <td>{{ $candidate->name }}</td>
-                    <td>{{ $candidate->party }}</td>
-                    <td>{{ $candidate->votes_count }}</td>
+                    <td class="rank">{{ $index + 1 }}</td>
+                    <td class="candidate-name">{{ $candidate->name }}</td>
+                    <td class="party">{{ $candidate->party }}</td>
+                    <td class="votes">{{ $candidate->votes_count }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
 </body>
 </html>

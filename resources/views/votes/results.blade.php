@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<body style="position: relative; width: 100%; height: 100%; background: url('{{ asset('images/Image2.jpeg') }}') no-repeat center center / cover;">
 <div class="container text-center">
     <h3 class="my-3 text-primary fw-bold">📊 Election Results</h3>
 
@@ -48,4 +49,5 @@
         });
     </script>
 </div>
+</body>
 @endsection
