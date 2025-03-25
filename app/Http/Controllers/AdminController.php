@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Candidate;
+use App\Models\Election;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Vote;
 
 class AdminController extends Controller
 {
@@ -15,7 +18,11 @@ class AdminController extends Controller
     public function index()
     {
         $users = User::where('role', 'voter')->get();
-        return view('admin.index', compact('users'));
+        $candidates = Candidate::withCount('votes')->get();
+        $electionsCount = Election::count();
+        $totalVotes = Vote::count();
+        $election = Election::first();
+        return view('admin.dashboard', compact('users','candidates','electionsCount','totalVotes','election'));
     }
 
     public function create()

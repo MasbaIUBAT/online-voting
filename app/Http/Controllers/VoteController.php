@@ -15,6 +15,18 @@ class VoteController extends Controller
         return view('voting.index', compact('candidates'));
     }
 
+    public function result()
+    {
+        $candidates = Candidate::withCount('votes')->get();
+
+        if (request()->expectsJson())
+        {
+            return response()->json(['candidates' => $candidates]);
+        }
+
+        return view('votes.results', compact('candidates'));
+    }
+
     public function store(Request $request)
     {
         $user = Auth::user();

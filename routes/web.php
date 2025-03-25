@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ElectionController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\VoterController;
 use Illuminate\Support\Facades\Route;
@@ -40,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/voter/dashboard', [VoterController::class, 'index'])->name('voter.dashboard');
     Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
     Route::post('/vote', [VoteController::class, 'store'])->name('vote.store');
-
+    Route::get('/results', [VoteController::class, 'result'])->name('vote.results');
 });
 
 Route::middleware(['auth', 'checkvote'])->group(function () {
@@ -63,5 +64,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/elections/{id}', [ElectionController::class, 'destroy'])->name('elections.destroy');
 
     Route::resource('candidates', CandidateController::class);
+
+    // Route::get('/report/pdf', [ReportController::class, 'generatePDF'])->name('report.pdf');
+    // Route::get('/report/excel', [ReportController::class, 'exportExcel'])->name('report.excel');
+
+    Route::get('/report/pdf/{electionId}', [ReportController::class, 'generatePDF'])->name('report.pdf');
+    Route::get('/report/excel/{electionId}', [ReportController::class, 'exportExcel'])->name('report.excel');
+
 });
 
