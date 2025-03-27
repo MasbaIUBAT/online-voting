@@ -12,19 +12,48 @@ use App\Models\Election;
 
 class ReportController extends Controller
 {
-    // Generate PDF Report
     public function generatePDF()
     {
-        $candidates = Candidate::withCount('votes')->get();
-        $election = Election::first();
-        $pdf = PDF::loadView('reports.votes_pdf', compact('candidates','election'));
+        // Get the latest election
+        $latestElection = Election::latest()->first();
+
+        // Check if there is any election available
+        if (!$latestElection) {
+            return redirect()->back()->with('error', 'No election data found.');
+        }
+
+        // Fetch candidates for the latest election with vote count
+        $candidates = Candidate::where('election_id', $latestElection->id)
+            ->withCount('votes')
+            ->orderByDesc('votes_count')
+            ->get();
+
+        // Generate the PDF with the latest election data
+        $pdf = PDF::loadView('reports.votes_pdf', compact('candidates', 'latestElection'));
+
         return $pdf->download('election_results.pdf');
     }
 
+
     // Export Excel Report
-    public function exportExcel()
+    public function generateExcel()
     {
-        return Excel::download(new VoteExport, 'election_results.xlsx');
+        // Get the latest election
+        $latestElection = Election::latest()->first();
+
+        // Check if there is any election available
+        if (!$latestElection) {
+            return redirect()->back()->with('error', 'No election data found.');
+        }
+
+        // Fetch candidates for the latest election with vote count
+        $candidates = Candidate::where('election_id', $latestElection->id)
+            ->withCount('votes')
+            ->orderByDesc('votes_count')
+            ->get();
+
+        return Excel::download(new VoteExport($candidates, $latestElection), 'election_results.xlsx');
     }
+
 }
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
-            $table->integer('election_id'); // Election ID
+            $table->foreignId('election_id')->constrained()->onDelete('cascade'); // Delete candidates when the election is deleted
             $table->string('name'); // Candidate's name
             $table->string('party')->nullable(); // Candidate's political party (optional)
             $table->text('description')->nullable(); // Candidate's bio/description

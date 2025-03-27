@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('votes', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id'); // Voter ID
-            $table->integer('candidate_id'); // Candidate ID
-            $table->timestamp('voted_at')->nullable(); // Voting time
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Delete votes if the user is deleted
+            $table->foreignId('candidate_id')->constrained()->onDelete('cascade'); // Delete votes if the candidate is deleted
+            $table->timestamp('voted_at')->nullable();
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

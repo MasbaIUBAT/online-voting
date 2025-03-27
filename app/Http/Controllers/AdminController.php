@@ -19,13 +19,28 @@ class AdminController extends Controller
     public function index()
     {
         $users = User::where('role', 'voter')->get();
-        $candidates = Candidate::select('candidates.*',
-                DB::raw('(SELECT COUNT(*) FROM votes WHERE votes.candidate_id = candidates.id) as votes_count'))
-                ->orderByDesc('votes_count')
+
+        $latestElection = Election::latest()->first(); // Get the most recent election
+
+        if ($latestElection) {
+            // Get candidates for the latest election with vote counts
+            $candidates = Candidate::where('election_id', $latestElection->id)  // Ensure it's the latest election
+                ->select('candidates.*',
+                    DB::raw('(SELECT COUNT(*) FROM votes WHERE votes.candidate_id = candidates.id) as votes_count')
+                )
+                ->orderByDesc('votes_count')  // Order by votes count
                 ->get();
+        } else {
+            // No election found, return an empty collection or handle it appropriately
+            $candidates = collect();
+        }
+
         $electionsCount = Election::count();
+
         $totalVotes = Vote::count();
+
         $election = Election::first();
+
         return view('admin.dashboard', compact('users','candidates','electionsCount','totalVotes','election'));
     }
 

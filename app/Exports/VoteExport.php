@@ -5,24 +5,32 @@ namespace App\Exports;
 use App\Models\Candidate;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Illuminate\Support\Facades\DB;
 
 class VoteExport implements FromCollection, WithHeadings
 {
+    protected $candidates;
+    protected $election;
+
+    public function __construct($candidates, $election)
+    {
+        $this->candidates = $candidates;
+        $this->election = $election;
+    }
+
     public function collection()
     {
-        return Candidate::select('candidates.name', 'candidates.party',
-                DB::raw('(SELECT COUNT(*) FROM votes WHERE votes.candidate_id = candidates.id) as votes_count'))
-            ->orderByDesc('votes_count')
-            ->get();
+        return $this->candidates->map(function ($candidate) {
+            return [
+                'Candidate Name' => $candidate->name,
+                'Party' => $candidate->party,
+                'Total Votes' => $candidate->votes_count,
+            ];
+        });
     }
 
     public function headings(): array
     {
-        return [
-            'Candidate Name',
-            'Party',
-            'Total Votes'
-        ];
+        return ['Candidate Name', 'Party', 'Total Votes'];
     }
 }
+

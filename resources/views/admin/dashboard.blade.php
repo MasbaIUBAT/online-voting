@@ -1,3 +1,9 @@
+<style>
+    .card-title {
+        font-size: 1.4rem !important;
+    }
+</style>
+
 @extends('layouts.app')
 
 @section('title', 'Admin Dashboard')
@@ -13,7 +19,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-success shadow-lg rounded-3">
                 <div class="card-body text-center">
-                    <h5 class="card-title">📅 Total Elections</h5>
+                    <h6 class="card-title">📅 Total Elections</h6>
                     <h3 class="fw-bold">{{ $electionsCount }}</h3>
                 </div>
             </div>
@@ -21,7 +27,7 @@
         <div class="col-md-3">
             <div class="card text-white bg-secondary shadow-lg rounded-3">
                 <div class="card-body text-center">
-                    <h5 class="card-title">👤 Total Candidates</h5>
+                    <h6 class="card-title">👤 Total Candidates</h6>
                     <h3 class="fw-bold">{{ $candidates->count() }}</h3>
                 </div>
             </div>
@@ -63,13 +69,20 @@
     {{-- Reports & Audit Logs --}}
     <div class="text-center my-4">
         <h3 class="text-primary fw-bold">📊 Generate Reports</h3>
-        <a href="{{ route('report.pdf', ['electionId' => $election->id]) }}" class="btn btn-danger mx-2 shadow">
-            📄 Download PDF
-        </a>
-        <a href="{{ route('report.excel', ['electionId' => $election->id]) }}" class="btn btn-success mx-2 shadow">
-            📊 Download Excel
-        </a>
+
+        @if(isset($election) && $election->id)
+            <a href="{{ route('report.pdf', ['electionId' => $election->id]) }}" class="btn btn-danger mx-2 shadow">
+                📄 Download PDF
+            </a>
+
+            <a href="{{ route('report.excel', ['electionId' => $election->id]) }}" class="btn btn-success mx-2 shadow">
+                📊 Download Excel
+            </a>
+        @else
+            <p class="text-danger">⚠️ Election data not found. Please create an election for report.</p>
+        @endif
     </div>
+
 
     {{-- Success Message --}}
     @if(session('success'))
@@ -77,27 +90,35 @@
     @endif
 
    {{-- Live Vote Count Section --}}
-<h3 class="text-center mb-3 text-dark fw-bold">📡 Live Vote Count</h3>
-<div class="table-responsive">
-    <table class="table table-hover table-bordered bg-white shadow rounded">
-        <thead class="table-dark">
-            <tr>
-                <th>🏅 Candidate</th>
-                <th>📊 Votes</th>
-            </tr>
-        </thead>
-        <tbody id="vote-count">
-            @foreach($candidates as $candidate)
-                <tr>
-                    <td class="fw-bold">{{ $candidate->name }}</td>
-                    <td class="fw-bold text-success" id="votes-{{ $candidate->id }}">
-                        {{ $candidate->votes_count }}
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+   <h3 class="text-center mb-3 text-dark fw-bold">📡 Live Vote Count</h3>
+
+   @if($candidates->isEmpty())
+       <div class="alert alert-warning text-center fw-bold">
+           🚨 Candidate data not found. Please create candidates for the election.
+       </div>
+   @else
+       <div class="table-responsive">
+           <table class="table table-hover table-bordered bg-white shadow rounded">
+               <thead class="table-dark">
+                   <tr>
+                       <th>🏅 Candidate</th>
+                       <th>📊 Votes</th>
+                   </tr>
+               </thead>
+               <tbody id="vote-count">
+                   @foreach($candidates as $candidate)
+                       <tr id="candidate-{{ $candidate->id }}">
+                           <td class="fw-bold">{{ $candidate->name }}</td>
+                           <td class="fw-bold text-success" id="votes-{{ $candidate->id }}">
+                               {{ $candidate->votes_count }}
+                           </td>
+                       </tr>
+                   @endforeach
+               </tbody>
+           </table>
+       </div>
+   @endif
+
 
 
     {{-- User Management Section --}}
@@ -135,13 +156,23 @@
 {{-- Real-Time Vote Count Script --}}
 <script>
     setInterval(() => {
-        fetch("{{ route('vote.results') }}")
-        .then(response => response.json())
-        .then(data => {
-            data.candidates.forEach(candidate => {
-                document.getElementById(`votes-${candidate.id}`).innerText = candidate.votes_count;
-            });
+    fetch("{{ route('vote.results') }}", {
+        headers: {
+            'Accept': 'application/json'  // Make sure the server knows we expect JSON
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        data.candidates.forEach(candidate => {
+            document.getElementById(`votes-${candidate.id}`).innerText = candidate.votes_count;
+            console.log(`Updated votes for candidate ${candidate.name}: ${candidate.votes_count}`);
         });
-    }, 5000); // Refresh every 5 seconds
+    })
+    .catch(error => {
+        console.error("Error fetching vote counts:", error);
+    });
+}, 5000); // Refresh every 5 seconds
+
 </script>
+
 @endsection

@@ -44,9 +44,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/results', [VoteController::class, 'result'])->name('vote.results');
 });
 
-Route::middleware(['auth', 'checkvote'])->group(function () {
-    Route::post('/vote', [VoteController::class, 'store'])->name('vote.store');
-});
+// Route::middleware(['auth', 'checkvote'])->group(function () {
+//     Route::post('/vote', [VoteController::class, 'store'])->name('vote.store');
+// });
 
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -69,7 +69,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Route::get('/report/excel', [ReportController::class, 'exportExcel'])->name('report.excel');
 
     Route::get('/report/pdf/{electionId}', [ReportController::class, 'generatePDF'])->name('report.pdf');
-    Route::get('/report/excel/{electionId}', [ReportController::class, 'exportExcel'])->name('report.excel');
+    Route::get('/report/excel/{electionId}', [ReportController::class, 'generateExcel'])->name('report.excel');
 
 });
 

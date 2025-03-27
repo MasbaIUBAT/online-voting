@@ -74,7 +74,7 @@
 </head>
 <body>
 
-    <h2>Election Results for {{ $election->title }}</h2>
+    <h2>Election Results for {{ $latestElection->title }}</h2>
 
     <table>
         <thead>
